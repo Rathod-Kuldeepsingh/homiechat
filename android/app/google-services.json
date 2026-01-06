@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "194550077368",
+    "project_id": "homiechat-72639",
+    "storage_bucket": "homiechat-72639.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194550077368:android:bd14931bf038628f1e614d",
+        "android_client_info": {
+          "package_name": "com.example.homiechat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyqUTaCcitZwuKZiu6Fob1dKQZI_D5k68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,10 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:homiechat/config/theme/app_theme.dart';
+import 'package:homiechat/data/services/service_locator.dart';
+import 'package:homiechat/presentation/screens/Feature/splash_screen.dart';
 import 'package:homiechat/presentation/screens/auth/login_screen.dart';
+import 'package:homiechat/router/app_router.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() async {
+    await setupServiceLocator();
+    runApp(const MyApp());
+  }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -14,6 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      navigatorKey: getIt<AppRouter>().navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: LoginScreen(),

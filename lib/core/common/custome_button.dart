@@ -6,15 +6,12 @@ class CustomeButton extends StatelessWidget {
     super.key,
     required this.text,
     this.child,
-    this.onpressed,
-  }) : assert(
-         text != null || child != null,
-         'Either text or child must be provided',
-       );
+   this.onPressed, 
+  });
 
   final String text;
   final Widget? child;
-  final Function()? onpressed;
+ final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -31,11 +28,7 @@ class CustomeButton extends StatelessWidget {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
-          onPressed: onpressed == null
-              ? null
-              : () async {
-                  await onpressed?.call();
-                },
+          onPressed: onPressed,
           child:
               child ??
               Text(
