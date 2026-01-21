@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously, unused_import
 
 import 'dart:developer';
 
@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:homiechat/config/theme/app_theme.dart';
 import 'package:homiechat/core/common/custome_button.dart';
 import 'package:homiechat/core/common/custome_textfield.dart';
+import 'package:homiechat/core/utils/ui_utils.dart';
 import 'package:homiechat/data/services/service_locator.dart';
 import 'package:homiechat/logic/cubits/auth/auth_cubit.dart';
 import 'package:homiechat/logic/cubits/auth/auth_state.dart';
@@ -76,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ispassword;
       debugPrint("Signup data valid");
       try {
-        getIt<AuthCubit>().signIn(
+        await getIt<AuthCubit>().signIn(
           email: emailcontroller.text,
           password: passwordcontroller.text,
         );
@@ -96,163 +97,175 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-        bloc: getIt<AuthCubit>(),
-        listener: (context, state) {
-          if (state.status == AuthStatus.authenticated) {
-            getIt<AppRouter>().pushAndRemoveUntil(
-              const Home(),
-            );
-          } 
-          //else if (state.status == AuthStatus.error && state.error != null) {
-            //UiUtils.showSnackBar(context, message: state.error!);
-          //}
-        },
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Form(
-            key: _formkey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 60),
-                Center(
-                  child: Image.asset(
-                    'assets/logo/homie.png',
-                    height: 170,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    "Login to your Account ",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: CustomeTextfield(
-                    controller: emailcontroller,
-                    Validator: emailvalidator,
-                    focusnode: _emailfocus,
-                    HintText: 'Enter the email',
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: Image.asset(
-                          color: Colors.grey.shade800,
-                          "assets/Icons/mail.png",
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+    return BlocConsumer<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(),
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          getIt<AppRouter>().pushAndRemoveUntil(HomeScreen());
+        } else if (state.status == AuthStatus.error && state.error != null) {
+          UiUtils.showSnackBar(context, message: state.error!);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: SingleChildScrollView(
+            child: Form(
+              key: _formkey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 60),
+                  Center(
+                    child: Image.asset(
+                      'assets/logo/homie.png',
+                      height: 170,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: CustomeTextfield(
-                    controller: passwordcontroller,
-                    focusnode: _passwordfocus,
-                    Validator: ispassword,
-                    HintText: "Enter the Password",
-                    ObscureText: !isPasswordVisible,
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: Image.asset(
-                          "assets/Icons/password.png",
-                          color: Colors.grey.shade800,
-                        ),
-                      ),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.grey.shade800,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          isPasswordVisible = !isPasswordVisible;
-                        });
-                      },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      "Login to your Account ",
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        log("Forget Screen");
-                      },
-                      child: Text(
-                        "Forget Password?",
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                CustomeButton(onPressed: handlesignIn, text: "Login"),
-
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const SignupScreen(),
-                        //   ),
-                        // );
-
-                        getIt<AppRouter>().push(
-                          SignupScreen(),
-                        ); // getit use here
-                      },
-                      child: RichText(
-                        text: TextSpan(
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.secondary,
+                  SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      controller: emailcontroller,
+                      Validator: emailvalidator,
+                      focusnode: _emailfocus,
+                      HintText: 'Enter the email',
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            color: Colors.grey.shade800,
+                            "assets/Icons/mail.png",
+                            fit: BoxFit.contain,
                           ),
-                          children: [
-                            TextSpan(text: "Don't have an account?"),
-                            TextSpan(
-                              text: ' Signup',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryColor,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      controller: passwordcontroller,
+                      focusnode: _passwordfocus,
+                      Validator: ispassword,
+                      HintText: "Enter the Password",
+                      ObscureText: !isPasswordVisible,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            "assets/Icons/password.png",
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey.shade800,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          log("Forget Screen");
+                        },
+                        child: Text(
+                          "Forget Password?",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  CustomeButton(
+                    onPressed: handlesignIn,
+                    text: "Login",
+                    child: state.status == AuthStatus.loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white
+                            ),
+                          ),
+                  ),
+
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const SignupScreen(),
+                          //   ),
+                          // );
+
+                          getIt<AppRouter>().push(
+                            SignupScreen(),
+                          ); // getit use here
+                        },
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            children: [
+                              TextSpan(text: "Don't have an account?"),
+                              TextSpan(
+                                text: ' Signup',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

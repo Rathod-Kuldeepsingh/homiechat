@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
 import 'dart:math';
 
@@ -96,7 +98,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       
       await _authRepository.singOut();
-      getIt<AppRouter>().pushAndRemoveUntil(LoginScreen()); // option
+      // getIt<AppRouter>().pushAndRemoveUntil(LoginScreen()); // option
       emit(
         state.copyWith(
           status: AuthStatus.unauthenticated,

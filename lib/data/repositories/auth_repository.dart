@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:homiechat/data/models/user_model.dart';
 import 'package:homiechat/data/services/base_repository.dart';
 
@@ -8,7 +9,7 @@ import 'package:homiechat/data/services/base_repository.dart';
 class AuthRepository extends BaseRepository {
   Stream<User?> get authStateChanges => auth.authStateChanges();
 
-  get currentUser => null;
+
 
   Future<UserModel> signUp({
     required String fullName,
@@ -21,14 +22,14 @@ class AuthRepository extends BaseRepository {
       final formattedPhoneNumber =
           phoneNumber.replaceAll(RegExp(r'\s+'), "".trim());
 
-      // final emailExists = await checkEmailExists(email);
-      // if (emailExists) {
-      //   throw "An account with the same email already exists";
-      // }
-      // final phoneNumberExists = await checkPhoneExists(formattedPhoneNumber);
-      // if (phoneNumberExists) {
-      //   throw "An account with the same phone already exists";
-      // }
+      final emailExists = await checkEmailExists(email);
+      if (emailExists) {
+        throw "An email already exists";
+      }
+      final phoneNumberExists = await checkPhoneExists(formattedPhoneNumber);
+      if (phoneNumberExists) {
+        throw "An phone already exists";
+      }
 
       final userCredential = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
@@ -46,37 +47,47 @@ class AuthRepository extends BaseRepository {
       );
       await saveUserData(user);
       return user;
-    } catch (e) {
-      log(e.toString());
+    } catch (e) { 
+     log(e.toString());
       rethrow;
     }
   }
 
-  // Future<bool> checkEmailExists(String email) async {
-  //   try {
-  //     final methods = await auth.fetchSignInMethodsForEmail(email);
-  //     return methods.isNotEmpty;
-  //   } catch (e) {
-  //     print("Error checking email: $e");
-  //     return false;
-  //   }
-  // }
+  Future<bool> checkEmailExists(String email) async {
+  try {
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email.trim(),
+      password: "Temp@12345", // dummy password
+    );
 
-  // Future<bool> checkPhoneExists(String phoneNumber) async {
-  //   try {
-  //     final formattedPhoneNumber =
-  //         phoneNumber.replaceAll(RegExp(r'\s+'), "".trim());
-  //     final querySnapshot = await firestore
-  //         .collection("users")
-  //         .where("phoneNumber", isEqualTo: formattedPhoneNumber)
-  //         .get();
+    // If reached here → email did NOT exist
+    await FirebaseAuth.instance.currentUser?.delete();
+    return false;
 
-  //     return querySnapshot.docs.isNotEmpty;
-  //   } catch (e) {
-  //     print("Error checking email: $e");
-  //     return false;
-  //   }
-  // }
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'email-already-in-use') {
+      return true; // email exists
+    }
+    rethrow;
+  }
+}
+
+
+  Future<bool> checkPhoneExists(String phoneNumber) async {
+    try {
+      final formattedPhoneNumber =
+          phoneNumber.replaceAll(RegExp(r'\s+'), "".trim());
+      final querySnapshot = await firestore
+          .collection("users")
+          .where("phoneNumber", isEqualTo: formattedPhoneNumber)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print("Error checking email: $e");
+      return false;
+    }
+  }
 
   Future<UserModel> signIn({
     required String email,
@@ -90,10 +101,19 @@ class AuthRepository extends BaseRepository {
       }
       final userData = await getUserData(userCredential.user!.uid);
       return userData;
-    } catch (e) {
-      log(e.toString());
-      rethrow;
+    }on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+      throw Exception("Wrong password");
+    } else if (e.code == 'user-not-found') {
+      throw Exception("No account found with this email");
+    } else if (e.code == 'invalid-email') {
+      throw Exception("Invalid email address");
     }
+    throw Exception("Login failed. Please check credential.");
+    } catch (e) {
+    log(e.toString());
+    rethrow;
+  }
   }
 
   Future<void> saveUserData(UserModel user) async {

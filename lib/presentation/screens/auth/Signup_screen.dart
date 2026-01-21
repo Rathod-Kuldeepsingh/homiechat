@@ -1,14 +1,21 @@
+// ignore_for_file: avoid_print
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homiechat/config/theme/app_theme.dart';
 import 'package:homiechat/core/common/custome_button.dart';
 import 'package:homiechat/core/common/custome_textfield.dart';
+import 'package:homiechat/core/utils/ui_utils.dart';
 import 'package:homiechat/data/repositories/auth_repository.dart';
 import 'package:homiechat/data/services/service_locator.dart';
 import 'package:homiechat/logic/cubits/auth/auth_cubit.dart';
+import 'package:homiechat/logic/cubits/auth/auth_state.dart';
 import 'package:homiechat/presentation/screens/auth/login_screen.dart';
+import 'package:homiechat/presentation/screens/home/home.dart';
+import 'package:homiechat/router/app_router.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -138,7 +145,7 @@ class _SignupScreenState extends State<SignupScreen> {
       isusername;
       debugPrint("Signup data valid");
       try {
-        getIt<AuthCubit>().signUp(
+       await getIt<AuthCubit>().signUp(
           fullName: fullname.text,
           username: username.text,
           email: email.text,
@@ -147,217 +154,242 @@ class _SignupScreenState extends State<SignupScreen> {
         );
       } catch (e) {
         print(e.toString());
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(
-          backgroundColor: AppTheme.primaryColor,
-          content: Text(e.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTheme.primaryColor,
+            content: Text(e.toString()),
+          ),
+        );
       }
-    }
-    else{
+    } else {
       print("form validation falied");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(scrolledUnderElevation: 0, elevation: 0),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formkey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Image.asset(
-                  'assets/logo/homie.png',
-                  height: 170,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  "Create to your Account ",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  "Please fill in the details to continue",
-                  style: GoogleFonts.poppins(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: CustomeTextfield(
-                  Validator: name,
-                  controller: fullname,
-                  HintText: "Enter the fullname",
-                  focusnode: _nameFocus,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: Image.asset(
-                        "assets/Icons/user.png",
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: CustomeTextfield(
-                  controller: username,
-                  Validator: isusername,
-                  HintText: "Enter the username",
-                  focusnode: _usernameFocus,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: Image.asset(
-                        "assets/Icons/id-card.png",
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: CustomeTextfield(
-                  controller: email,
-                  focusnode: _emailFocus,
-                  Validator: emailvalidator,
-                  HintText: "Enter the email",
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: Image.asset(
-                        "assets/Icons/mail.png",
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: CustomeTextfield(
-                  keyboardType: TextInputType.number,
-                  controller: phone,
-                  focusnode: _phoneFocus,
-                  Validator: isphone,
-                  HintText: "Enter the phone number",
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: Image.asset(
-                        "assets/Icons/phone-call.png",
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: CustomeTextfield(
-                  controller: password,
-                  Validator: ispassword,
-                  focusnode: _passwordFocus,
-                  ObscureText: !isPasswordVisible,
-                  HintText: "Enter the password",
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: Image.asset(
-                        "assets/Icons/password.png",
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.grey.shade800,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isPasswordVisible = !isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              CustomeButton(text: "Create Account", onPressed: handlesignUp),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return BlocConsumer<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(),
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          getIt<AppRouter>().pushAndRemoveUntil(const HomeScreen());
+        } else if (state.status == AuthStatus.error && state.error != null) {
+          UiUtils.showSnackBar(context, message: state.error!);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(scrolledUnderElevation: 0, elevation: 0),
+          body: SingleChildScrollView(
+            child: Form(
+              key: _formkey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const LoginScreen(),
-                      //   ),
-                      // );
-                      Navigator.pop(context);
-                    },
-                    child: RichText(
-                      text: TextSpan(
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.secondary,
+                  Center(
+                    child: Image.asset(
+                      'assets/logo/homie.png',
+                      height: 170,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      "Create to your Account ",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      "Please fill in the details to continue",
+                      style: GoogleFonts.poppins(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      Validator: name,
+                      controller: fullname,
+                      HintText: "Enter the fullname",
+                      focusnode: _nameFocus,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            "assets/Icons/user.png",
+                            color: Colors.grey.shade800,
+                          ),
                         ),
-                        children: [
-                          TextSpan(text: "Already have an account?"),
-                          TextSpan(
-                            text: ' Login',
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      controller: username,
+                      Validator: isusername,
+                      HintText: "Enter the username",
+                      focusnode: _usernameFocus,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            "assets/Icons/id-card.png",
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      controller: email,
+                      focusnode: _emailFocus,
+                      Validator: emailvalidator,
+                      HintText: "Enter the email",
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            "assets/Icons/mail.png",
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      keyboardType: TextInputType.number,
+                      controller: phone,
+                      focusnode: _phoneFocus,
+                      Validator: isphone,
+                      HintText: "Enter the phone number",
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            "assets/Icons/phone-call.png",
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CustomeTextfield(
+                      controller: password,
+                      Validator: ispassword,
+                      focusnode: _passwordFocus,
+                      ObscureText: !isPasswordVisible,
+                      HintText: "Enter the password",
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Image.asset(
+                            "assets/Icons/password.png",
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey.shade800,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  CustomeButton(
+                    text: "Create Account",
+                    onPressed: handlesignUp,
+                     child: state.status == AuthStatus.loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Create Account",
                             style: TextStyle(
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                              color: Colors.white
                             ),
                           ),
-                        ],
-                      ),
-                    ),
                   ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const LoginScreen(),
+                          //   ),
+                          // );
+                          Navigator.pop(context);
+                        },
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            children: [
+                              TextSpan(text: "Already have an account?"),
+                              TextSpan(
+                                text: ' Login',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30),
                 ],
               ),
-              SizedBox(height: 30),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

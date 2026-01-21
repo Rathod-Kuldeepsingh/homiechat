@@ -30,7 +30,7 @@ class AppTheme {
       centerTitle: false,
       titleTextStyle: GoogleFonts.poppins(
         color: Colors.black,
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: FontWeight.w600,
       ),
       iconTheme: IconThemeData(color: Colors.black),
@@ -59,7 +59,8 @@ class AppTheme {
       ),
       bodyLarge: GoogleFonts.poppins(
         fontSize: 16,
-        color: Colors.black87,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
       ),
       bodyMedium: GoogleFonts.poppins(
         fontSize: 14,
